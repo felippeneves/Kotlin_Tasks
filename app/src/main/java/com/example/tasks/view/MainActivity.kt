@@ -1,5 +1,7 @@
 package com.example.tasks.view
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -19,6 +21,7 @@ import com.example.tasks.viewmodel.MainViewModel
 
 class MainActivity : AppCompatActivity() {
 
+    private val mContext: Context = this
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var mViewModel: MainViewModel
 
@@ -33,8 +36,7 @@ class MainActivity : AppCompatActivity() {
 
         val fab: FloatingActionButton = findViewById(R.id.fab)
         fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+            startActivity(Intent(mContext, TaskFormActivity::class.java))
         }
 
         // Navegação

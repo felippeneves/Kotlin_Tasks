@@ -33,4 +33,9 @@
     <string name="all_tasks">Tarefas</string>
     <string name="proximos_7_dias">Próximos 7 dias</string>
 
+    <string name="enter_name">Informe o nome</string>
+    <string name="enter_email">Informe o e-mail</string>
+    <string name="enter_password">Informe a senha</string>
+    <string name="user_created_successfully">Usuário criado com sucesso</string>
+
 </resources>

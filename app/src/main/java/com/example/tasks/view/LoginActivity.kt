@@ -6,11 +6,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.biometric.BiometricPrompt
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.tasks.R
 import com.example.tasks.viewmodel.LoginViewModel
 import kotlinx.android.synthetic.main.activity_login.*
+import java.util.concurrent.Executor
 
 class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -27,8 +30,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         setListeners();
         observe()
 
-        // Verifica se usuário está logado
-        verifyLoggedUser()
+        mViewModel.isAuthenticationAvaliable()
     }
 
     override fun onClick(v: View) {
@@ -37,6 +39,42 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         } else if (v.id == R.id.text_register) {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
+    }
+
+    private fun showFingerprintAuthentication() {
+        //Executor - gerencia quando a resposta é obtida
+        val executor: Executor = ContextCompat.getMainExecutor(this)
+
+        //BiometricPrompt
+        val biometricPrompt = BiometricPrompt(this@LoginActivity,
+            executor,
+            object : BiometricPrompt.AuthenticationCallback() {
+                //Chamdo quando é lida uma digital que não está cadastrada no dispositivo
+                override fun onAuthenticationFailed() {
+                    super.onAuthenticationFailed()
+                }
+
+                //Erro inesperado no dispositivo
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                    super.onAuthenticationError(errorCode, errString)
+                }
+
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    super.onAuthenticationSucceeded(result)
+                    startActivity(Intent(mContext, MainActivity::class.java))
+                    finish()
+                }
+            })
+
+        //BiometricPrompt INFO
+        val info: BiometricPrompt.PromptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle("Titulo")
+            .setSubtitle("Subtitulo")
+            .setDescription("Descrição")
+            .setNegativeButtonText("Cancelar")
+            .build()
+
+        biometricPrompt.authenticate(info)
     }
 
     /**
@@ -48,18 +86,11 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     /**
-     * Verifica se usuário está logado
-     */
-    private fun verifyLoggedUser() {
-        mViewModel.verifyLoggedUser()
-    }
-
-    /**
      * Observa ViewModel
      */
     private fun observe() {
-        mViewModel.login.observe(this, Observer{
-            if(it.success()) {
+        mViewModel.login.observe(this, Observer {
+            if (it.success()) {
                 startActivity(Intent(mContext, MainActivity::class.java))
                 finish()
             } else {
@@ -68,10 +99,9 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
             }
         })
 
-        mViewModel.loggedUser.observe(this, Observer {
-            if(it) {
-                startActivity(Intent(mContext, MainActivity::class.java))
-                finish()
+        mViewModel.fingerprint.observe(this, Observer {
+            if (it) {
+                showFingerprintAuthentication()
             }
         })
     }
